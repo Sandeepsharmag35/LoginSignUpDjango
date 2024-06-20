@@ -13,6 +13,37 @@ from django.contrib.sites.shortcuts import get_current_site
 def Home(request):
     return render(request, 'index.html')
 
+def Register(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+
+        if User.objects.filter(username=username).exists():
+            error = 'Username already taken, try another!'
+            return render(request, 'register.html', {"error": error})
+        if User.objects.filter(email=email).exists():
+            error = 'Email already registered, try login!'
+            return render(request, 'register.html', {"error": error})
+            
+        new_user = User.objects.create_user(username=username, email=email, password=password)
+        new_user.save()
+        user_profile = Profile.objects.create(user=new_user)
+
+        user=authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            profile = Profile.objects.get(user=user)
+            if profile.active:
+                return redirect('home')
+            else:
+                return redirect('verify')
+        else:
+            return render(request, 'register.html', {"error": "Something went wrong! Try again later."})
+
+    return render(request, 'register.html')
+
+
 def Login(request):
     if request.method == 'POST':
         email = request.POST['email']

@@ -7,4 +7,4 @@ import uuid
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     auth_token = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    active = models.BooleanField(default=False)  # Add the active field
+    active = models.BooleanField(default=False)
